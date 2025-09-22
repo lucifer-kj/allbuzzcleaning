@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth';
 import { createClient } from '@/lib/supabase-server';
 import { z } from 'zod';
@@ -10,8 +10,8 @@ const shareSchema = z.object({
 });
 
 export async function POST(
-  request: NextRequest,
-  { params }: { params: { platform: string } }
+  request: Request,
+  { params }: any
 ) {
   try {
     const user = await getUser();
