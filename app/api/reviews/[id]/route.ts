@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getUser } from '@/lib/auth';
 import { createClient } from '@/lib/supabase-server';
 import { z } from 'zod';
@@ -12,8 +12,8 @@ const reviewUpdateSchema = z.object({
 });
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: any
 ) {
   try {
     const user = await getUser();
@@ -64,8 +64,8 @@ export async function GET(
 }
 
 export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: any
 ) {
   try {
     const user = await getUser();
@@ -134,8 +134,8 @@ export async function PUT(
 }
 
 export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+  request: Request,
+  { params }: any
 ) {
   try {
     const user = await getUser();
