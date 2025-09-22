@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
           customer_name: validatedData.customer_name,
           submitted_at: new Date().toISOString(),
           user_agent: request.headers.get('user-agent') || null,
-          ip_address: request.ip || request.headers.get('x-forwarded-for') || null,
+          ip_address: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || null,
         },
       });
 

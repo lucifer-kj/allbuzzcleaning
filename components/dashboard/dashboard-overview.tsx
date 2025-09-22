@@ -7,6 +7,10 @@ import { Plus, Star, TrendingUp, Users, MessageSquare, Loader2 } from 'lucide-re
 import Link from 'next/link';
 import { ReviewTrendsChart } from '@/components/charts/review-trends-chart';
 import { RatingDistributionChart } from '@/components/charts/rating-distribution-chart';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
+import { motion } from 'framer-motion';
 import { NotificationSystem } from '@/components/notifications/notification-system';
 import { ExportPanel } from '@/components/export/export-panel';
 import { AutoRefreshAnalytics } from '@/components/analytics/auto-refresh-analytics';
@@ -69,8 +73,44 @@ export function DashboardOverview() {
   if (loading) {
     return (
       <div className="space-y-6">
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 animate-spin" />
+        {/* Header Skeleton */}
+        <div className="flex items-center justify-between">
+          <div>
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-4 w-96 mt-2" />
+          </div>
+          <Skeleton className="h-10 w-32" />
+        </div>
+        
+        {/* Metrics Skeleton */}
+        <div className="responsive-grid">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Card key={i} className="mobile-card">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-5 w-5" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-8 w-16" />
+                <Skeleton className="h-4 w-32 mt-2" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+        
+        {/* Charts Skeleton */}
+        <div className="responsive-grid-2">
+          {Array.from({ length: 2 }).map((_, i) => (
+            <Card key={i} className="mobile-card">
+              <CardHeader>
+                <Skeleton className="h-6 w-32" />
+                <Skeleton className="h-4 w-48" />
+              </CardHeader>
+              <CardContent>
+                <Skeleton className="h-64 w-full" />
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
     );
@@ -172,8 +212,12 @@ export function DashboardOverview() {
 
       {/* Metrics Cards */}
       <div className="responsive-grid">
-        {metricsData.map((metric) => (
-          <Card key={metric.title} className="mobile-card">
+        {metricsData.map((metric, index) => (
+          <AnimatedCard 
+            key={metric.title} 
+            delay={index * 0.1}
+            className="mobile-card"
+          >
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm sm:text-base font-medium">
                 {metric.title}
@@ -186,13 +230,13 @@ export function DashboardOverview() {
                 {metric.description}
               </p>
             </CardContent>
-          </Card>
+          </AnimatedCard>
         ))}
       </div>
 
       {/* Analytics Charts */}
       <div className="responsive-grid-2">
-        <Card className="mobile-card">
+        <AnimatedCard delay={0.4} className="mobile-card">
           <CardHeader>
             <CardTitle className="mobile-text">Review Trends</CardTitle>
             <CardDescription className="text-sm sm:text-base">
@@ -202,9 +246,9 @@ export function DashboardOverview() {
           <CardContent>
             <ReviewTrendsChart data={trends} />
           </CardContent>
-        </Card>
+        </AnimatedCard>
 
-        <Card className="mobile-card">
+        <AnimatedCard delay={0.5} className="mobile-card">
           <CardHeader>
             <CardTitle className="mobile-text">Rating Distribution</CardTitle>
             <CardDescription className="text-sm sm:text-base">
@@ -214,7 +258,7 @@ export function DashboardOverview() {
           <CardContent>
             <RatingDistributionChart data={ratingDistribution} />
           </CardContent>
-        </Card>
+        </AnimatedCard>
       </div>
 
       {/* Export and Analytics */}

@@ -3,8 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    serverComponentsExternalPackages: ['@supabase/supabase-js'],
   },
+  serverExternalPackages: ['@supabase/supabase-js', '@supabase/ssr'],
   images: {
     remotePatterns: [
       {
@@ -30,7 +30,6 @@ const nextConfig: NextConfig = {
     keepAlive: true,
   },
   // Performance optimizations
-  swcMinify: true,
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },

@@ -239,15 +239,24 @@ export class RealtimeService {
    * Set up connection monitoring
    */
   setupConnectionMonitoring(): void {
-    // Monitor connection status
-    this.supabase.realtime.onConnectionStatus((status) => {
-      if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-        this.connectionStatus = 'DISCONNECTED';
-      } else if (status === 'OPEN') {
+    const updateStatus = () => {
+      if (this.supabase.realtime.isConnected()) {
         this.connectionStatus = 'CONNECTED';
         this.reconnectAttempts = 0;
+        return;
       }
-    });
+
+      if (this.supabase.realtime.isConnecting() || this.supabase.realtime.isDisconnecting()) {
+        this.connectionStatus = 'RECONNECTING';
+        return;
+      }
+
+      this.connectionStatus = 'DISCONNECTED';
+    };
+
+    // Initial check and periodic monitoring
+    updateStatus();
+    setInterval(updateStatus, 2000);
   }
 }
 

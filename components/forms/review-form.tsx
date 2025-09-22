@@ -12,6 +12,8 @@ import { StarRating } from '@/components/ui/star-rating';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
 import { LoadingOverlay } from '@/components/ui/loading-overlay';
+import { useToast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
 
 interface ReviewBusinessInfo {
   name?: string;
@@ -29,8 +31,10 @@ export function ReviewForm({ business }: ReviewFormProps) {
   const [submitError, setSubmitError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [result, setResult] = useState<any>(null);
   
   const supabase = createClient();
+  const { toast } = useToast();
   
   const {
     register,
@@ -74,6 +78,13 @@ export function ReviewForm({ business }: ReviewFormProps) {
         // High rating - show success message briefly then redirect to Google Business Profile
         setIsSuccess(true);
         setIsRedirecting(true);
+        
+        toast({
+          title: "Review submitted!",
+          description: "Thank you for your positive feedback. Redirecting to Google...",
+          variant: "success",
+        });
+        
         setTimeout(() => {
           if (business?.google_business_url) {
             window.location.href = business.google_business_url;
@@ -82,11 +93,24 @@ export function ReviewForm({ business }: ReviewFormProps) {
             setSubmitError('Google Business Profile URL is not configured. Please contact the business owner.');
             setIsSuccess(false);
             setIsRedirecting(false);
+            
+            toast({
+              title: "Configuration Error",
+              description: "Google Business Profile URL is not configured.",
+              variant: "destructive",
+            });
           }
         }, 1500); // Show loading state for better UX
       } else {
         // Low rating - immediately redirect to feedback form (no thank you page)
         setIsRedirecting(true);
+        
+        toast({
+          title: "Review submitted",
+          description: "Redirecting to feedback form for additional details...",
+          variant: "default",
+        });
+        
         setTimeout(() => {
           window.location.href = `/feedback/global?reviewId=${result.review.id}`;
         }, 500);
@@ -95,6 +119,12 @@ export function ReviewForm({ business }: ReviewFormProps) {
     } catch (error) {
       console.error('Review submission error:', error);
       setSubmitError('Failed to submit review. Please try again.');
+      
+      toast({
+        title: "Submission Failed",
+        description: "Failed to submit review. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -140,16 +170,32 @@ export function ReviewForm({ business }: ReviewFormProps) {
         message="Submitting your review..."
         type="loading"
       />
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <motion.form 
+        onSubmit={handleSubmit(onSubmit)} 
+        className="space-y-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         {submitError && (
-          <div className="flex items-center space-x-2 text-destructive text-sm bg-destructive/10 p-3 rounded-md">
+          <motion.div 
+            className="flex items-center space-x-2 text-destructive text-sm bg-destructive/10 p-3 rounded-md"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.2 }}
+          >
             <AlertCircle className="w-4 h-4" />
             <span>{submitError}</span>
-          </div>
+          </motion.div>
         )}
 
       {/* Customer Name */}
-      <div className="space-y-2">
+      <motion.div 
+        className="space-y-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.1 }}
+      >
         <Label htmlFor="customer_name">Your Name *</Label>
         <Input
           id="customer_name"
@@ -160,10 +206,15 @@ export function ReviewForm({ business }: ReviewFormProps) {
         {errors.customer_name && (
           <p className="text-sm text-destructive">{errors.customer_name.message}</p>
         )}
-      </div>
+      </motion.div>
 
       {/* Customer Phone */}
-      <div className="space-y-2">
+      <motion.div 
+        className="space-y-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.2 }}
+      >
         <Label htmlFor="customer_phone">Phone Number (Optional)</Label>
         <Input
           id="customer_phone"
@@ -175,10 +226,15 @@ export function ReviewForm({ business }: ReviewFormProps) {
         {errors.customer_phone && (
           <p className="text-sm text-destructive">{errors.customer_phone.message}</p>
         )}
-      </div>
+      </motion.div>
 
       {/* Star Rating */}
-      <div className="space-y-2">
+      <motion.div 
+        className="space-y-2"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.3 }}
+      >
         <Label>How would you rate your cleaning service experience? *</Label>
         <div className="flex justify-center">
           <StarRating
@@ -190,27 +246,38 @@ export function ReviewForm({ business }: ReviewFormProps) {
         {errors.rating && (
           <p className="text-sm text-destructive text-center">{errors.rating.message}</p>
         )}
-      </div>
+      </motion.div>
 
 
       {/* Submit Button */}
-      <Button
-        type="submit"
-        className="w-full mobile-touch-target"
-        disabled={isSubmitting}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.4 }}
       >
-        {isSubmitting ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            Submitting...
-          </>
-        ) : (
-          'Submit Review'
-        )}
-      </Button>
+        <Button
+          type="submit"
+          className="w-full mobile-touch-target"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Submitting...
+            </>
+          ) : (
+            'Submit Review'
+          )}
+        </Button>
+      </motion.div>
 
       {/* Privacy Notice */}
-      <div className="text-center text-xs text-muted-foreground">
+      <motion.div 
+        className="text-center text-xs text-muted-foreground"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3, delay: 0.5 }}
+      >
         <p>
           By submitting this review, you agree to our Terms of Service and Privacy Policy.
           {rating >= 4 && rating > 0 && (
@@ -224,8 +291,8 @@ export function ReviewForm({ business }: ReviewFormProps) {
             </span>
           )}
         </p>
-      </div>
-      </form>
+      </motion.div>
+      </motion.form>
     </>
   );
 }

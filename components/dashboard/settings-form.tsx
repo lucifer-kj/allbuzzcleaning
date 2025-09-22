@@ -12,6 +12,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Upload, X, Building2, Globe, Star, MessageSquare } from 'lucide-react';
 import { z } from 'zod';
 import { createClient } from '@/lib/supabase';
+import { useToast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
+import { AnimatedCard } from '@/components/ui/animated-card';
 
 const settingsSchema = z.object({
   name: z.string().min(1, 'Business name is required').max(100, 'Business name too long'),
@@ -63,6 +66,7 @@ export function SettingsForm() {
   const [saving, setSaving] = useState(false);
 
   const supabase = createClient();
+  const { toast } = useToast();
 
   const {
     register,
@@ -201,11 +205,21 @@ export function SettingsForm() {
       if (error) throw error;
 
       // Show success message
-      alert('Settings saved successfully!');
+      toast({
+        title: "Settings saved!",
+        description: "Your business settings have been updated successfully.",
+        variant: "success",
+      });
       
     } catch (error) {
       console.error('Error saving settings:', error);
       setFormError('Failed to save settings. Please try again.');
+      
+      toast({
+        title: "Save Failed",
+        description: "Failed to save settings. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setSaving(false);
     }
@@ -224,7 +238,7 @@ export function SettingsForm() {
 
   return (
     <div className="max-w-2xl space-y-6">
-      <Card>
+      <AnimatedCard delay={0.1}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Building2 className="w-5 h-5" />
@@ -329,9 +343,9 @@ export function SettingsForm() {
             )}
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
-      <Card>
+      <AnimatedCard delay={0.2}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Star className="w-5 h-5" />
@@ -392,10 +406,10 @@ export function SettingsForm() {
             )}
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
       {/* Preview Card */}
-      <Card>
+      <AnimatedCard delay={0.3}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <MessageSquare className="w-5 h-5" />
@@ -433,7 +447,7 @@ export function SettingsForm() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
       {/* Error Message */}
       {formError && (

@@ -28,16 +28,6 @@ export function AnimatedCard({
     right: { x: -20, opacity: 0 },
   };
 
-  const hoverVariants = hover ? {
-    hover: {
-      y: -4,
-      transition: {
-        duration: 0.2,
-        ease: 'easeOut',
-      },
-    },
-  } : {};
-
   return (
     <motion.div
       initial={directionVariants[direction]}
@@ -47,8 +37,7 @@ export function AnimatedCard({
         delay,
         ease: 'easeOut',
       }}
-      whileHover={hover ? 'hover' : undefined}
-      variants={hoverVariants}
+      whileHover={hover ? { y: -4 } : undefined}
     >
       <Card className={cn('transition-shadow duration-200', hover && 'hover:shadow-lg', className)}>
         {children}

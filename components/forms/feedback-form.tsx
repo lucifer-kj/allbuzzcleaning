@@ -10,6 +10,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
 
 const feedbackFormSchema = z.object({
   contact_email: z.string().email('Please enter a valid email address').optional().or(z.literal('')),
@@ -29,6 +31,7 @@ export function FeedbackForm({ reviewId }: FeedbackFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [submitError, setSubmitError] = useState('');
+  const { toast } = useToast();
   
   
   const {
@@ -70,36 +73,68 @@ export function FeedbackForm({ reviewId }: FeedbackFormProps) {
         throw new Error(result.error || 'Failed to submit feedback');
       }
 
-      setIsSuccess(true);
+        setIsSuccess(true);
+        
+        toast({
+          title: "Feedback submitted!",
+          description: "Thank you for helping us improve our services.",
+          variant: "success",
+        });
 
-    } catch (error) {
-      console.error('Feedback submission error:', error);
-      setSubmitError(error instanceof Error ? error.message : 'Failed to submit feedback. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
+      } catch (error) {
+        console.error('Feedback submission error:', error);
+        setSubmitError(error instanceof Error ? error.message : 'Failed to submit feedback. Please try again.');
+        
+        toast({
+          title: "Submission Failed",
+          description: "Failed to submit feedback. Please try again.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
   };
 
   if (isSuccess) {
     return (
-      <div className="text-center space-y-4">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+      <motion.div 
+        className="text-center space-y-4"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        <motion.div 
+          className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
           <CheckCircle className="w-8 h-8 text-green-600" />
-        </div>
-        <div>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+        >
           <h3 className="text-lg font-semibold text-green-600">Thank You!</h3>
           <p className="text-sm text-muted-foreground">
             Your feedback has been received and will help us improve our services.
           </p>
-        </div>
-        <Button 
-          onClick={() => window.location.href = '/'}
-          variant="outline"
-          className="w-full"
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
         >
-          Return to Homepage
-        </Button>
-      </div>
+          <Button 
+            onClick={() => window.location.href = '/'}
+            variant="outline"
+            className="w-full"
+          >
+            Return to Homepage
+          </Button>
+        </motion.div>
+      </motion.div>
     );
   }
 

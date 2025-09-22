@@ -15,6 +15,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { useUIStore } from '@/stores/store';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -30,27 +31,46 @@ export function Sidebar() {
   return (
     <>
       {/* Mobile sidebar */}
-      <div className={cn(
-        'fixed inset-0 z-50 lg:hidden',
-        sidebarOpen ? 'block' : 'hidden'
-      )}>
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm" onClick={() => setSidebarOpen(false)} />
-        <div className="fixed inset-y-0 left-0 z-50 w-64 bg-background border-r">
-          <div className="flex h-16 items-center justify-between px-4">
-            <h1 className="text-xl font-bold">Crux</h1>
-            <Button
-              variant="ghost"
-              size="icon"
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div 
+            className="fixed inset-0 z-50 lg:hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <motion.div 
+              className="fixed inset-0 bg-background/80 backdrop-blur-sm" 
               onClick={() => setSidebarOpen(false)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+            <motion.div 
+              className="fixed inset-y-0 left-0 z-50 w-64 bg-background border-r"
+              initial={{ x: -256 }}
+              animate={{ x: 0 }}
+              exit={{ x: -256 }}
+              transition={{ type: "spring", damping: 25, stiffness: 200 }}
             >
-              <X className="h-5 w-5" />
-            </Button>
-          </div>
-          <nav className="px-4 py-4">
-            <NavigationItems pathname={pathname} />
-          </nav>
-        </div>
-      </div>
+              <div className="flex h-16 items-center justify-between px-4">
+                <h1 className="text-xl font-bold">Crux</h1>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSidebarOpen(false)}
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              <nav className="px-4 py-4">
+                <NavigationItems pathname={pathname} />
+              </nav>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Desktop sidebar */}
       <div className={cn(
@@ -87,25 +107,47 @@ function NavigationItems({ pathname, collapsed }: { pathname: string; collapsed?
     <ul role="list" className="flex flex-1 flex-col gap-y-7">
       <li>
         <ul role="list" className="-mx-2 space-y-1">
-          {navigation.map((item) => {
+          {navigation.map((item, index) => {
             const isActive = pathname === item.href;
             return (
-              <li key={item.name}>
+              <motion.li 
+                key={item.name}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
+              >
                 <Link
                   href={item.href}
                   className={cn(
-                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-colors',
+                    'group flex gap-x-3 rounded-md p-2 text-sm leading-6 font-semibold transition-all duration-200',
                     collapsed ? 'justify-center px-2' : '',
                     isActive
-                      ? 'bg-primary text-primary-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                      ? 'bg-primary text-primary-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted hover:shadow-sm'
                   )}
                   title={collapsed ? item.name : undefined}
                 >
-                  <item.icon className="h-5 w-5 shrink-0" />
-                  {!collapsed && <span className="truncate">{item.name}</span>}
+                  <motion.div
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <item.icon className="h-5 w-5 shrink-0" />
+                  </motion.div>
+                  <AnimatePresence>
+                    {!collapsed && (
+                      <motion.span 
+                        className="truncate"
+                        initial={{ opacity: 0, width: 0 }}
+                        animate={{ opacity: 1, width: 'auto' }}
+                        exit={{ opacity: 0, width: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {item.name}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </Link>
-              </li>
+              </motion.li>
             );
           })}
         </ul>
