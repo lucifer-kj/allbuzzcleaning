@@ -11,6 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { StarRating } from '@/components/ui/star-rating';
 import { AlertCircle, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase';
+import { LoadingOverlay } from '@/components/ui/loading-overlay';
 
 interface ReviewBusinessInfo {
   name?: string;
@@ -27,6 +28,7 @@ export function ReviewForm({ business }: ReviewFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   
   const supabase = createClient();
   
@@ -67,25 +69,28 @@ export function ReviewForm({ business }: ReviewFormProps) {
         throw new Error(result.error || 'Failed to submit review');
       }
 
-      setIsSuccess(true);
-
       // Smart routing based on rating
-      setTimeout(() => {
-        if (data.rating >= 4) {
-          // High rating - redirect to Google Business Profile
+      if (data.rating >= 4) {
+        // High rating - show success message briefly then redirect to Google Business Profile
+        setIsSuccess(true);
+        setIsRedirecting(true);
+        setTimeout(() => {
           if (business?.google_business_url) {
             window.location.href = business.google_business_url;
           } else {
             // If no Google Business URL is configured, show error message
             setSubmitError('Google Business Profile URL is not configured. Please contact the business owner.');
             setIsSuccess(false);
-            return;
+            setIsRedirecting(false);
           }
-        } else {
-          // Low rating - redirect to internal feedback page
+        }, 1500); // Show loading state for better UX
+      } else {
+        // Low rating - immediately redirect to feedback form (no thank you page)
+        setIsRedirecting(true);
+        setTimeout(() => {
           window.location.href = `/feedback/global?reviewId=${result.review.id}`;
-        }
-      }, 2000);
+        }, 500);
+      }
 
     } catch (error) {
       console.error('Review submission error:', error);
@@ -97,34 +102,51 @@ export function ReviewForm({ business }: ReviewFormProps) {
 
   if (isSuccess) {
     return (
-      <div className="text-center space-y-4">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+      <>
+        <LoadingOverlay
+          isVisible={isRedirecting}
+          message={rating >= 4 
+            ? 'Please wait... redirecting you to Google to share your positive review...'
+            : 'Please wait... redirecting you to provide additional feedback...'
+          }
+          type="redirecting"
+          redirectUrl={rating >= 4 ? business?.google_business_url : `/feedback/global?reviewId=${result?.review?.id}`}
+        />
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+            <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-green-600">Thank you!</h3>
+            <p className="text-sm text-muted-foreground">
+              {business?.thank_you_message || (
+                rating >= 4 
+                  ? 'Please wait... redirecting you to Google to share your positive review...'
+                  : 'Please wait... redirecting you to provide additional feedback...'
+              )}
+            </p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-lg font-semibold text-green-600">Thank you!</h3>
-          <p className="text-sm text-muted-foreground">
-            {business?.thank_you_message || (
-              rating >= 4 
-                ? 'Redirecting you to Google to share your positive review...'
-                : 'Redirecting you to provide additional feedback...'
-            )}
-          </p>
-        </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {submitError && (
-        <div className="flex items-center space-x-2 text-destructive text-sm bg-destructive/10 p-3 rounded-md">
-          <AlertCircle className="w-4 h-4" />
-          <span>{submitError}</span>
-        </div>
-      )}
+    <>
+      <LoadingOverlay
+        isVisible={isSubmitting}
+        message="Submitting your review..."
+        type="loading"
+      />
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        {submitError && (
+          <div className="flex items-center space-x-2 text-destructive text-sm bg-destructive/10 p-3 rounded-md">
+            <AlertCircle className="w-4 h-4" />
+            <span>{submitError}</span>
+          </div>
+        )}
 
       {/* Customer Name */}
       <div className="space-y-2">
@@ -203,6 +225,7 @@ export function ReviewForm({ business }: ReviewFormProps) {
           )}
         </p>
       </div>
-    </form>
+      </form>
+    </>
   );
 }

@@ -18,6 +18,8 @@ const RealtimeContext = createContext<RealtimeContextType | null>(null);
 export function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const [isConnected, setIsConnected] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<'CONNECTED' | 'DISCONNECTED' | 'RECONNECTING'>('DISCONNECTED');
+  const [reconnectAttempts, setReconnectAttempts] = useState(0);
+  const [lastActivity, setLastActivity] = useState<number>(Date.now());
   
   const { user } = useUserStore();
 
@@ -26,25 +28,52 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       realtimeService.unsubscribeAll();
       setIsConnected(false);
       setConnectionStatus('DISCONNECTED');
+      setReconnectAttempts(0);
       return;
     }
 
-    // No business subscriptions needed for single business model
-
-    // Monitor connection status
+    // Monitor connection status with exponential backoff
     const checkConnection = () => {
       const status = realtimeService.getConnectionStatus();
       setConnectionStatus(status);
       setIsConnected(status === 'CONNECTED');
+      
+      if (status === 'CONNECTED') {
+        setReconnectAttempts(0);
+      } else if (status === 'DISCONNECTED') {
+        setReconnectAttempts(prev => prev + 1);
+      }
     };
 
-    const interval = setInterval(checkConnection, 5000);
+    // More frequent checks for better responsiveness
+    const interval = setInterval(checkConnection, 2000);
     checkConnection();
+
+    // Track user activity for connection management
+    const updateActivity = () => setLastActivity(Date.now());
+    
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+    events.forEach(event => {
+      document.addEventListener(event, updateActivity, true);
+    });
+
+    // Auto-reconnect on user activity if disconnected
+    const reconnectOnActivity = () => {
+      if (!isConnected && Date.now() - lastActivity < 5000) {
+        realtimeService.reconnect();
+      }
+    };
+
+    const activityInterval = setInterval(reconnectOnActivity, 10000);
 
     return () => {
       clearInterval(interval);
+      clearInterval(activityInterval);
+      events.forEach(event => {
+        document.removeEventListener(event, updateActivity, true);
+      });
     };
-  }, [user]);
+  }, [user, isConnected, lastActivity]);
 
   const subscribeToReviews = (businessId: string, callback: (payload: any) => void) => {
     return realtimeService.subscribeToReviews(businessId, callback);

@@ -22,7 +22,6 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient();
 
     // Insert review
-
     const { data: review, error } = await supabase
       .from('reviews')
       .insert({
@@ -35,11 +34,29 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (error) {
+      console.error('Review insert error:', error);
       return NextResponse.json(
         { error: 'Database insert error' },
         { status: 500 }
       );
     }
+
+    // Track review submission in analytics
+    await supabase
+      .from('analytics')
+      .insert({
+        metric_type: 'review_submitted',
+        value: 1,
+        metadata: {
+          review_id: review.id,
+          rating: validatedData.rating,
+          is_public: review.is_public,
+          customer_name: validatedData.customer_name,
+          submitted_at: new Date().toISOString(),
+          user_agent: request.headers.get('user-agent') || null,
+          ip_address: request.ip || request.headers.get('x-forwarded-for') || null,
+        },
+      });
 
     return NextResponse.json({
       success: true,

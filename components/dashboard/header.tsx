@@ -14,6 +14,7 @@ import {
 import { Menu, User, LogOut } from 'lucide-react';
 import { useUIStore } from '@/stores/store';
 import { useSupabase } from '@/hooks/use-supabase';
+import { ConnectionStatus } from '@/components/ui/connection-status';
 
 export function Header() {
   const { setSidebarOpen } = useUIStore();
@@ -40,6 +41,7 @@ export function Header() {
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
         <div className="flex flex-1" />
         <div className="flex items-center gap-x-4 lg:gap-x-6">
+          <ConnectionStatus />
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

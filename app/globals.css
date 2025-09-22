@@ -62,6 +62,35 @@
   .fade-in {
     animation: fade-in 0.5s ease-out;
   }
+  
+  /* Mobile-first touch targets */
+  .mobile-touch-target {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* Improved mobile spacing */
+  .mobile-container {
+    @apply px-4 sm:px-6 md:px-8 lg:px-12;
+  }
+  
+  /* Better mobile typography */
+  .mobile-text {
+    @apply text-sm sm:text-base md:text-lg;
+  }
+  
+  /* Responsive grid utilities */
+  .responsive-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6;
+  }
+  
+  .responsive-grid-2 {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6;
+  }
+  
+  /* Mobile-friendly cards */
+  .mobile-card {
+    @apply rounded-lg sm:rounded-xl p-4 sm:p-6;
+  }
 }
 
 @keyframes fade-in {

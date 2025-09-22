@@ -9,6 +9,10 @@ export interface RealtimeSubscription {
 export class RealtimeService {
   private supabase = createClient();
   private subscriptions = new Map<string, RealtimeSubscription>();
+  private connectionStatus: 'CONNECTED' | 'DISCONNECTED' | 'RECONNECTING' = 'DISCONNECTED';
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+  private reconnectDelay = 1000;
 
   /**
    * Subscribe to reviews updates (global for single business)
@@ -188,7 +192,62 @@ export class RealtimeService {
    * Get connection status
    */
   getConnectionStatus(): 'CONNECTED' | 'DISCONNECTED' | 'RECONNECTING' {
-    return this.supabase.realtime.getChannels().length > 0 ? 'CONNECTED' : 'DISCONNECTED';
+    return this.connectionStatus;
+  }
+
+  /**
+   * Reconnect to realtime service
+   */
+  async reconnect(): Promise<void> {
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.warn('Max reconnection attempts reached');
+      return;
+    }
+
+    this.connectionStatus = 'RECONNECTING';
+    this.reconnectAttempts++;
+
+    try {
+      // Recreate supabase client
+      this.supabase = createClient();
+      
+      // Resubscribe to all existing subscriptions
+      const existingSubscriptions = Array.from(this.subscriptions.entries());
+      this.subscriptions.clear();
+
+      for (const [channelName, subscription] of existingSubscriptions) {
+        // Recreate subscription logic here if needed
+        // For now, just mark as reconnected
+        subscription.channel.subscribe();
+        this.subscriptions.set(channelName, subscription);
+      }
+
+      this.connectionStatus = 'CONNECTED';
+      this.reconnectAttempts = 0;
+    } catch (error) {
+      console.error('Reconnection failed:', error);
+      this.connectionStatus = 'DISCONNECTED';
+      
+      // Exponential backoff
+      setTimeout(() => {
+        this.reconnect();
+      }, this.reconnectDelay * Math.pow(2, this.reconnectAttempts));
+    }
+  }
+
+  /**
+   * Set up connection monitoring
+   */
+  setupConnectionMonitoring(): void {
+    // Monitor connection status
+    this.supabase.realtime.onConnectionStatus((status) => {
+      if (status === 'CLOSED' || status === 'CHANNEL_ERROR') {
+        this.connectionStatus = 'DISCONNECTED';
+      } else if (status === 'OPEN') {
+        this.connectionStatus = 'CONNECTED';
+        this.reconnectAttempts = 0;
+      }
+    });
   }
 }
 

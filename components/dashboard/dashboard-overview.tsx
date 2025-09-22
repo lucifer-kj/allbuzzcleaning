@@ -171,18 +171,18 @@ export function DashboardOverview() {
       </Card>
 
       {/* Metrics Cards */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="responsive-grid">
         {metricsData.map((metric) => (
-          <Card key={metric.title}>
+          <Card key={metric.title} className="mobile-card">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm sm:text-base font-medium">
                 {metric.title}
               </CardTitle>
-              <metric.icon className={`h-4 w-4 ${metric.color}`} />
+              <metric.icon className={`h-4 w-4 sm:h-5 sm:w-5 ${metric.color}`} />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{metric.value}</div>
-              <p className="text-xs text-muted-foreground">
+              <div className="text-xl sm:text-2xl lg:text-3xl font-bold">{metric.value}</div>
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 {metric.description}
               </p>
             </CardContent>
@@ -191,11 +191,11 @@ export function DashboardOverview() {
       </div>
 
       {/* Analytics Charts */}
-      <div className="grid gap-6 md:grid-cols-2">
-        <Card>
+      <div className="responsive-grid-2">
+        <Card className="mobile-card">
           <CardHeader>
-            <CardTitle>Review Trends</CardTitle>
-            <CardDescription>
+            <CardTitle className="mobile-text">Review Trends</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
               Daily review submissions over the last 30 days
             </CardDescription>
           </CardHeader>
@@ -204,10 +204,10 @@ export function DashboardOverview() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="mobile-card">
           <CardHeader>
-            <CardTitle>Rating Distribution</CardTitle>
-            <CardDescription>
+            <CardTitle className="mobile-text">Rating Distribution</CardTitle>
+            <CardDescription className="text-sm sm:text-base">
               Distribution of star ratings received
             </CardDescription>
           </CardHeader>

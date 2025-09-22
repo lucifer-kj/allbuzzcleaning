@@ -9,8 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, CheckCircle } from 'lucide-react';
-import { createClient } from '@/lib/supabase';
+import { Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 
 const feedbackFormSchema = z.object({
   contact_email: z.string().email('Please enter a valid email address').optional().or(z.literal('')),
@@ -29,8 +28,8 @@ interface FeedbackFormProps {
 export function FeedbackForm({ reviewId }: FeedbackFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   
-  const supabase = createClient();
   
   const {
     register,
@@ -48,33 +47,34 @@ export function FeedbackForm({ reviewId }: FeedbackFormProps) {
     },
   });
 
-  const onSubmit = async (data: unknown) => {
+  const onSubmit = async (data: FeedbackFormData) => {
     setIsSubmitting(true);
+    setSubmitError('');
 
     try {
-      // Store detailed feedback in analytics table
-      const { error } = await supabase
-        .from('analytics')
-        .insert({
-          metric_type: 'internal_feedback',
-          value: 1,
-          metadata: {
-            review_id: reviewId,
-            issue_category: (data as FeedbackFormData).issue_category,
-            detailed_feedback: (data as FeedbackFormData).detailed_feedback,
-            contact_email: (data as FeedbackFormData).contact_email || null,
-            contact_phone: (data as FeedbackFormData) .contact_phone || null,
-            allow_follow_up: (data as FeedbackFormData).allow_follow_up,
-            submitted_at: new Date().toISOString(),
-          },
-          });
+      // Submit feedback via API route
+      const response = await fetch('/api/feedback', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          review_id: reviewId,
+          ...data,
+        }),
+      });
 
-      if (error) throw error;
+      const result = await response.json();
+
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to submit feedback');
+      }
 
       setIsSuccess(true);
 
-    } catch {
-      throw new Error('Error submitting feedback');
+    } catch (error) {
+      console.error('Feedback submission error:', error);
+      setSubmitError(error instanceof Error ? error.message : 'Failed to submit feedback. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
@@ -105,11 +105,12 @@ export function FeedbackForm({ reviewId }: FeedbackFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* 
-        The following error display was referencing a non-existent 'submitError' property on 'errors'.
-        If you want to show a generic submit error, you should use a separate state variable, e.g. 'submitError', not 'errors.submitError'.
-        For now, we remove this block to fix the error.
-      */}
+      {submitError && (
+        <div className="flex items-center space-x-2 text-destructive text-sm bg-destructive/10 p-3 rounded-md">
+          <AlertCircle className="w-4 h-4" />
+          <span>{submitError}</span>
+        </div>
+      )}
 
       {/* Contact Information */}
       <div className="space-y-4">

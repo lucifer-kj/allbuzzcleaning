@@ -12,7 +12,6 @@ export function SignInForm() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
   const [supabase, setSupabase] = useState<ReturnType<typeof createClient> | null>(null);
 
   useEffect(() => {
@@ -37,28 +36,14 @@ export function SignInForm() {
     }
 
     try {
-      if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/auth/callback`
-          }
-        });
-        
-        if (error) throw error;
-        
-        alert('Check your email for the confirmation link!');
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) throw error;
-        
-        window.location.href = '/dashboard';
-      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      
+      if (error) throw error;
+      
+      window.location.href = '/dashboard';
     } catch (error: unknown) {
       const errorMessage = error instanceof Error ? error.message : 'An error occurred';
       setError(errorMessage);
@@ -136,7 +121,7 @@ export function SignInForm() {
         </div>
 
         <Button type="submit" className="w-full mobile-touch-target" disabled={isLoading}>
-          {isLoading ? 'Loading...' : (isSignUp ? 'Sign Up' : 'Sign In')}
+          {isLoading ? 'Signing In...' : 'Sign In'}
         </Button>
       </form>
 
@@ -166,13 +151,9 @@ export function SignInForm() {
       </Button>
 
       <div className="text-center">
-        <button
-          type="button"
-          onClick={() => setIsSignUp(!isSignUp)}
-          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
-        </button>
+        <p className="text-sm text-muted-foreground">
+          Contact administrator for account access
+        </p>
       </div>
     </div>
   );
