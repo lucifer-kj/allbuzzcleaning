@@ -1,10 +1,6 @@
-const CACHE_NAME = 'all-buzz-cleaning-v1';
+const CACHE_NAME = 'all-buzz-cleaning-v2';
 const urlsToCache = [
   '/',
-  '/dashboard',
-  '/reviews',
-  '/analytics',
-  '/settings',
   '/manifest.json',
   '/logo/favicon.ico',
   '/logo/icons8-logo-ios-17-outlined-16.png',
@@ -27,22 +23,33 @@ self.addEventListener('install', (event) => {
         console.error('Cache installation failed:', error);
       })
   );
+  self.skipWaiting();
 });
 
 // Fetch event - serve from cache when offline
 self.addEventListener('fetch', (event) => {
+  const { request } = event;
+
+  // Network-first for navigations to avoid cached redirects/pages
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          const copy = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
+          return networkResponse;
+        })
+        .catch(async () => {
+          const cached = await caches.match(request);
+          return cached || caches.match('/');
+        })
+    );
+    return;
+  }
+
+  // For other requests: cache-first fallback
   event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
-      .catch(() => {
-        // If both cache and network fail, show offline page for navigation requests
-        if (event.request.mode === 'navigate') {
-          return caches.match('/');
-        }
-      })
+    caches.match(request).then((cached) => cached || fetch(request))
   );
 });
 
@@ -59,6 +66,7 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  self.clients.claim();
 });
 
 // Background sync for offline form submissions
