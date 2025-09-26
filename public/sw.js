@@ -1,4 +1,4 @@
-const CACHE_NAME = 'all-buzz-cleaning-v2';
+const CACHE_NAME = 'all-buzz-cleaning-v3';
 const urlsToCache = [
   '/',
   '/manifest.json',
@@ -15,13 +15,25 @@ const urlsToCache = [
 // Install event - cache resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => {
-        return cache.addAll(urlsToCache);
-      })
-      .catch((error) => {
+    (async () => {
+      try {
+        const cache = await caches.open(CACHE_NAME);
+        await Promise.all(
+          urlsToCache.map(async (url) => {
+            try {
+              const response = await fetch(url, { cache: 'no-store' });
+              if (!response || !response.ok) return; // Skip failures
+              await cache.put(url, response);
+            } catch (e) {
+              // Skip any asset that fails to fetch to avoid aborting install
+              console.warn('Skipping cache of', url, e);
+            }
+          })
+        );
+      } catch (error) {
         console.error('Cache installation failed:', error);
-      })
+      }
+    })()
   );
   self.skipWaiting();
 });

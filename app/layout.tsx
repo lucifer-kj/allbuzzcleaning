@@ -8,6 +8,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import { ErrorMonitor } from "@/components/ui/error-monitor";
 import { DebugInfo } from "@/components/ui/debug-info";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -53,6 +54,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  viewportFit: 'cover',
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#ffffff" },
     { media: "(prefers-color-scheme: dark)", color: "#000000" }
@@ -94,6 +96,7 @@ export default function RootLayout({
                 {children}
                 <Toaster />
                 <DebugInfo />
+                <Analytics />
               </AppSettingsProvider>
             </RealtimeProvider>
           </PWAProvider>

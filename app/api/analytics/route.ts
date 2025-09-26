@@ -42,13 +42,13 @@ export async function GET(request: NextRequest) {
 
     // Calculate metrics
     const totalReviews = reviews?.length || 0;
-    const positiveReviews = reviews?.filter(r => r.rating >= 4).length || 0;
-    const internalFeedback = analytics?.filter(a => a.metric_type === 'internal_feedback').length || 0;
+    const positiveReviews = reviews?.filter((r: { rating: number }) => r.rating >= 4).length || 0;
+    const internalFeedback = analytics?.filter((a: { metric_type: string }) => a.metric_type === 'internal_feedback').length || 0;
     const conversionRate = totalReviews > 0 ? (positiveReviews / totalReviews) * 100 : 0;
 
     // Calculate rating distribution
     const ratingDistribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    reviews?.forEach(review => {
+    reviews?.forEach((review: { rating: number }) => {
       ratingDistribution[review.rating as keyof typeof ratingDistribution]++;
     });
 
@@ -60,12 +60,12 @@ export async function GET(request: NextRequest) {
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
       
-      const dayReviews = reviews?.filter(r => 
+      const dayReviews = reviews?.filter((r: { created_at: string }) => 
         r.created_at.startsWith(dateStr)
       ) || [];
       
-      const dayPositive = dayReviews.filter(r => r.rating >= 4).length;
-      const dayNegative = dayReviews.filter(r => r.rating < 4).length;
+      const dayPositive = dayReviews.filter((r: { rating: number }) => r.rating >= 4).length;
+      const dayNegative = dayReviews.filter((r: { rating: number }) => r.rating < 4).length;
       
       trends.push({
         date: dateStr,

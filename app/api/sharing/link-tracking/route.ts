@@ -120,9 +120,9 @@ export async function GET(request: NextRequest) {
 
     // Aggregate tracking data
     const linkTypes = ['direct', 'qr_code', 'social', 'email'];
-    const typeStats = linkTypes.map(type => ({
+    const typeStats = linkTypes.map((type: string) => ({
       type,
-      count: tracking?.filter(t => t.link_type === type).length || 0
+      count: tracking?.filter((t: { link_type: string }) => t.link_type === type).length || 0
     }));
 
     const totalClicks = tracking?.length || 0;

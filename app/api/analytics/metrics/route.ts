@@ -39,15 +39,15 @@ export async function GET(request: NextRequest) {
     // Calculate metrics
     const totalReviews = reviews?.length || 0;
     const averageRating = totalReviews > 0 
-      ? reviews.reduce((sum, review) => sum + review.rating, 0) / totalReviews 
+      ? reviews.reduce((sum: number, review: { rating: number }) => sum + review.rating, 0) / totalReviews 
       : 0;
 
     // Rating distribution
-    const ratingDistribution = [1, 2, 3, 4, 5].map(rating => ({
+    const ratingDistribution = [1, 2, 3, 4, 5].map((rating: number) => ({
       rating,
-      count: reviews?.filter(r => r.rating === rating).length || 0,
+      count: reviews?.filter((r: { rating: number }) => r.rating === rating).length || 0,
       percentage: totalReviews > 0 
-        ? ((reviews?.filter(r => r.rating === rating).length || 0) / totalReviews) * 100 
+        ? ((reviews?.filter((r: { rating: number }) => r.rating === rating).length || 0) / totalReviews) * 100 
         : 0
     }));
 
@@ -58,8 +58,8 @@ export async function GET(request: NextRequest) {
       return date.toISOString().split('T')[0];
     }).reverse();
 
-    const dailyTrends = last7Days.map(date => {
-      const dayReviews = reviews?.filter(r => 
+    const dailyTrends = last7Days.map((date: string) => {
+      const dayReviews = reviews?.filter((r: { created_at: string }) => 
         r.created_at.startsWith(date)
       ) || [];
       
@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
         date,
         reviews: dayReviews.length,
         averageRating: dayReviews.length > 0 
-          ? dayReviews.reduce((sum, r) => sum + r.rating, 0) / dayReviews.length 
+          ? dayReviews.reduce((sum: number, r: { rating: number }) => sum + r.rating, 0) / dayReviews.length 
           : 0
       };
     });

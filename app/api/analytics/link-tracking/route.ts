@@ -99,7 +99,7 @@ export async function GET(request: NextRequest) {
     };
 
     // Group by source and type
-    analytics?.forEach((item) => {
+    analytics?.forEach((item: { metadata: unknown }) => {
       const metadata = item.metadata as unknown as { source: string; link_type: string };
       const source = metadata?.source || 'unknown';
       const type = metadata?.link_type || 'unknown';
@@ -115,7 +115,7 @@ export async function GET(request: NextRequest) {
       date.setDate(date.getDate() - i);
       const dateStr = date.toISOString().split('T')[0];
       
-      const dayClicks = analytics?.filter(item => 
+      const dayClicks = analytics?.filter((item: { created_at: string }) => 
         item.created_at.startsWith(dateStr)
       ).length || 0;
       

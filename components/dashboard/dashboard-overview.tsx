@@ -243,7 +243,7 @@ export function DashboardOverview() {
               Daily review submissions over the last 30 days
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-w-0">
             <ReviewTrendsChart data={trends} />
           </CardContent>
         </AnimatedCard>
@@ -255,7 +255,7 @@ export function DashboardOverview() {
               Distribution of star ratings received
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-w-0">
             <RatingDistributionChart data={ratingDistribution} />
           </CardContent>
         </AnimatedCard>

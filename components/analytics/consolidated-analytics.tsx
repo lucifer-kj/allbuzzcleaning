@@ -236,7 +236,7 @@ export function ConsolidatedAnalytics(_: ConsolidatedAnalyticsProps) {
             <CardTitle>Rating Distribution</CardTitle>
             <CardDescription>Breakdown of reviews by star rating</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-w-0">
             <ResponsiveContainer width="100%" height={300}>
               <PieChart>
                 <Pie
@@ -266,7 +266,7 @@ export function ConsolidatedAnalytics(_: ConsolidatedAnalyticsProps) {
             <CardTitle>Monthly Trends</CardTitle>
             <CardDescription>Reviews and ratings over time</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-w-0">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={analyticsData.monthlyTrends}>
                 <CartesianGrid strokeDasharray="3 3" />

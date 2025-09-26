@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -15,6 +16,7 @@ import { Menu, User, LogOut } from 'lucide-react';
 import { useUIStore } from '@/stores/store';
 import { useSupabase } from '@/hooks/use-supabase';
 import { ConnectionStatus } from '@/components/ui/connection-status';
+import { Logo } from '@/components/ui/logo';
 
 export function Header() {
   const { setSidebarOpen } = useUIStore();
@@ -28,7 +30,11 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b bg-background px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-3 border-b bg-background px-3 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
+      <Link href="/dashboard" className="flex items-center gap-2 lg:hidden">
+        <Logo size="sm" />
+        <span className="text-base font-semibold">All Buzz Cleaning</span>
+      </Link>
       <Button
         variant="ghost"
         size="icon"
@@ -41,7 +47,7 @@ export function Header() {
       <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
         <div className="flex flex-1" />
         <div className="flex items-center gap-x-4 lg:gap-x-6">
-          <ConnectionStatus />
+          {/* ConnectionStatus removed per request */}
           {/* User menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

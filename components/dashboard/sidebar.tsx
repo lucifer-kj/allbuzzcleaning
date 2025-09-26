@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useUIStore } from '@/stores/store';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Logo } from '@/components/ui/logo';
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -48,14 +49,17 @@ export function Sidebar() {
               exit={{ opacity: 0 }}
             />
             <motion.div 
-              className="fixed inset-y-0 left-0 z-50 w-64 bg-background border-r"
+              className="fixed inset-y-0 left-0 z-50 w-[85vw] max-w-sm bg-background border-r"
               initial={{ x: -256 }}
               animate={{ x: 0 }}
               exit={{ x: -256 }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
             >
               <div className="flex h-16 items-center justify-between px-4">
-                <h1 className="text-xl font-bold">Crux</h1>
+                <Link href="/dashboard" className="flex items-center gap-2" onClick={() => setSidebarOpen(false)}>
+                  <Logo size="sm" />
+                  <span className="text-xl font-bold">All Buzz Cleaning</span>
+                </Link>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -79,7 +83,12 @@ export function Sidebar() {
       )}>
         <div className="flex grow flex-col gap-y-5 overflow-y-auto bg-background border-r px-6 pb-4">
           <div className="flex h-16 shrink-0 items-center justify-between">
-            {!sidebarCollapsed && <h1 className="text-xl font-bold">Crux</h1>}
+            {!sidebarCollapsed && (
+              <Link href="/dashboard" className="flex items-center gap-2">
+                <Logo size="sm" />
+                <span className="text-xl font-bold">All Buzz Cleaning</span>
+              </Link>
+            )}
             <Button
               variant="ghost"
               size="icon"

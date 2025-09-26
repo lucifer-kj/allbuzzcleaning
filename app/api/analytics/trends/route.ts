@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
     // Group data by time period
     const groupedData = new Map<string, { reviews: number; ratings: number[] }>();
 
-    reviews?.forEach(review => {
+    reviews?.forEach((review: { rating: number; created_at: string }) => {
       const date = new Date(review.created_at);
       let key: string;
 
@@ -71,15 +71,15 @@ export async function GET(request: NextRequest) {
 
     // Convert to array and calculate trends
     const trends = Array.from(groupedData.entries())
-      .map(([period, data]) => ({
+      .map(([period, data]: [string, { reviews: number; ratings: number[] }]) => ({
         period,
         reviews: data.reviews,
         averageRating: data.ratings.length > 0 
-          ? Math.round((data.ratings.reduce((sum, r) => sum + r, 0) / data.ratings.length) * 100) / 100
+          ? Math.round((data.ratings.reduce((sum: number, r: number) => sum + r, 0) / data.ratings.length) * 100) / 100
           : 0,
-        ratingDistribution: [1, 2, 3, 4, 5].map(rating => ({
+        ratingDistribution: [1, 2, 3, 4, 5].map((rating: number) => ({
           rating,
-          count: data.ratings.filter(r => r === rating).length
+          count: data.ratings.filter((r: number) => r === rating).length
         }))
       }))
       .sort((a, b) => a.period.localeCompare(b.period));

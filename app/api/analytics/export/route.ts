@@ -58,7 +58,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Prepare export data
-    const exportData = reviews?.map(review => ({
+    type ReviewRow = {
+      id: string;
+      rating: number;
+      comment?: string | null;
+      customer_name?: string | null;
+      customer_email?: string | null;
+      allow_follow_up: boolean;
+      created_at: string;
+      updated_at: string;
+      businesses: { name: string };
+    };
+
+    const exportData = (reviews as ReviewRow[] | null | undefined)?.map((review: ReviewRow) => ({
       id: review.id,
       business_name: review.businesses.name,
       rating: review.rating,
@@ -74,15 +86,15 @@ export async function POST(request: NextRequest) {
     let analytics = null;
     if (validatedData.include_analytics && exportData.length > 0) {
       const totalReviews = exportData.length;
-      const averageRating = exportData.reduce((sum, r) => sum + r.rating, 0) / totalReviews;
+      const averageRating = exportData.reduce((sum: number, r: typeof exportData[number]) => sum + r.rating, 0) / totalReviews;
       
       analytics = {
         total_reviews: totalReviews,
         average_rating: Math.round(averageRating * 100) / 100,
-        rating_distribution: [1, 2, 3, 4, 5].map(rating => ({
+        rating_distribution: [1, 2, 3, 4, 5].map((rating: number) => ({
           rating,
-          count: exportData.filter(r => r.rating === rating).length,
-          percentage: Math.round((exportData.filter(r => r.rating === rating).length / totalReviews) * 100)
+          count: exportData.filter((r: typeof exportData[number]) => r.rating === rating).length,
+          percentage: Math.round((exportData.filter((r: typeof exportData[number]) => r.rating === rating).length / totalReviews) * 100)
         })),
         export_date: new Date().toISOString(),
         period: {
@@ -111,7 +123,7 @@ export async function POST(request: NextRequest) {
         'Customer Email', 'Allow Follow Up', 'Created At', 'Updated At'
       ];
       
-      const csvRows = exportData.map(review => [
+      const csvRows = exportData.map((review: typeof exportData[number]) => [
         review.id,
         review.business_name,
         review.rating,
@@ -125,7 +137,7 @@ export async function POST(request: NextRequest) {
 
       const csvContent = [
         csvHeaders.join(','),
-        ...csvRows.map(row => row.map(field => `"${field}"`).join(','))
+        ...csvRows.map((row: Array<string | number | boolean>) => row.map((field: string | number | boolean) => `"${String(field)}"`).join(','))
       ].join('\n');
 
       return new NextResponse(csvContent, {

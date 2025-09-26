@@ -90,7 +90,56 @@ export function ReviewsTable() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-md border">
+      {/* Mobile card list */}
+      <div className="md:hidden space-y-3">
+        {reviews.map((review) => (
+          <div key={review.id} className="rounded-md border p-4 bg-card">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-8 w-8">
+                <AvatarFallback>{review.customer_name.charAt(0).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <div className="font-medium truncate">{review.customer_name}</div>
+                {review.customer_phone && (
+                  <div className="text-xs text-muted-foreground">{review.customer_phone}</div>
+                )}
+              </div>
+              <Badge variant={review.is_public ? 'default' : 'secondary'}>
+                {review.is_public ? 'Public' : 'Private'}
+              </Badge>
+            </div>
+
+            <div className="mt-3 flex items-center justify-between">
+              <StarRating value={review.rating} onChange={() => {}} readonly size="sm" showLabel={false} />
+              <span className="text-xs text-muted-foreground">
+                {formatDistanceToNow(new Date(review.created_at), { addSuffix: true })}
+              </span>
+            </div>
+
+            <div className="mt-2">
+              {review.comment ? (
+                <p className="text-sm text-foreground">{review.comment}</p>
+              ) : (
+                <span className="text-sm text-muted-foreground">No comment</span>
+              )}
+            </div>
+
+            <div className="mt-3 flex items-center gap-2">
+              <Button variant="outline" size="sm" className="mobile-touch-target">
+                <Eye className="w-4 h-4 mr-1" /> View
+              </Button>
+              {review.is_public && (
+                <Button variant="outline" size="sm" className="mobile-touch-target">
+                  <ExternalLink className="w-4 h-4 mr-1" /> Open
+                </Button>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop/tablet table */}
+      <div className="rounded-md border hidden md:block">
         <Table>
           <TableHeader>
             <TableRow>

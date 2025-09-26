@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
-  ${businesses?.map(business => `
+  ${businesses?.map((business: { id: string; updated_at: string }) => `
   <url>
     <loc>${baseUrl}/review/${business.id}</loc>
     <lastmod>${new Date(business.updated_at).toISOString()}</lastmod>
