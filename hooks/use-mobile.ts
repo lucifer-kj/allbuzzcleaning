@@ -4,6 +4,8 @@ export function useMobile() {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
@@ -22,6 +24,8 @@ export function useBreakpoint() {
   const [breakpoint, setBreakpoint] = useState<'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl'>('lg');
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const checkBreakpoint = () => {
       const width = window.innerWidth;
       if (width < 475) setBreakpoint('xs');

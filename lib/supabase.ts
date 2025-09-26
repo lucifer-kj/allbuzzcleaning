@@ -5,9 +5,29 @@ export function createClient() {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    throw new Error(
-      'Missing Supabase environment variables. Please check your .env.local file and ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are set.'
-    );
+    console.error('Missing Supabase environment variables:', {
+      url: !!supabaseUrl,
+      key: !!supabaseAnonKey
+    });
+    
+    // Return a mock client to prevent crashes
+    return {
+      auth: {
+        getSession: () => Promise.resolve({ data: { session: null }, error: null }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
+        signOut: () => Promise.resolve({ error: null }),
+        signInWithOAuth: () => Promise.resolve({ error: new Error('Supabase not configured') })
+      },
+      realtime: {
+        isConnected: () => false,
+        isConnecting: () => false,
+        isDisconnecting: () => false
+      },
+      channel: () => ({
+        on: () => ({ subscribe: () => ({ unsubscribe: () => {} }) })
+      }),
+      removeChannel: () => {}
+    } as any;
   }
 
   return createBrowserClient(supabaseUrl, supabaseAnonKey);

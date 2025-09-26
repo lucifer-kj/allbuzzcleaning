@@ -5,6 +5,9 @@ import { RealtimeProvider } from "@/components/realtime/realtime-provider";
 import { AppSettingsProvider } from "@/components/providers/app-settings-provider";
 import { PWAProvider } from "@/components/pwa/pwa-provider";
 import { Toaster } from "@/components/ui/toaster";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
+import { ErrorMonitor } from "@/components/ui/error-monitor";
+import { DebugInfo } from "@/components/ui/debug-info";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -83,14 +86,18 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <PWAProvider>
-          <RealtimeProvider>
-            <AppSettingsProvider>
-              {children}
-              <Toaster />
-            </AppSettingsProvider>
-          </RealtimeProvider>
-        </PWAProvider>
+        <ErrorBoundary>
+          <PWAProvider>
+            <RealtimeProvider>
+              <AppSettingsProvider>
+                <ErrorMonitor />
+                {children}
+                <Toaster />
+                <DebugInfo />
+              </AppSettingsProvider>
+            </RealtimeProvider>
+          </PWAProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

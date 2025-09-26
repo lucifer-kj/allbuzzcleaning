@@ -1,23 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-
-export interface AppSettings {
-  id: boolean;
-  name: string;
-  description?: string;
-  logo_url?: string;
-  google_business_url?: string;
-  phone?: string;
-  email?: string;
-  address?: string;
-  website?: string;
-  brand_color: string;
-  welcome_message: string;
-  thank_you_message: string;
-  created_at: string;
-  updated_at: string;
-}
+import type { AppSettings } from '@/lib/types';
 
 interface AppSettingsContextType {
   settings: AppSettings | null;
@@ -39,6 +23,14 @@ export function AppSettingsProvider({ children }: { children: React.ReactNode })
       setError('');
       
       const response = await fetch('/api/app-settings');
+      
+      // Handle 401 (unauthorized) gracefully for public pages
+      if (response.status === 401) {
+        setSettings(null);
+        setLoading(false);
+        return;
+      }
+      
       const data = await response.json();
       
       if (data.success) {

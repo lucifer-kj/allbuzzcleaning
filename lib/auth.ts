@@ -16,7 +16,7 @@ export async function requireAuth() {
   const user = await getUser();
   
   if (!user) {
-    redirect('/signin');
+    redirect('/auth/signin');
   }
   
   return user;
@@ -29,5 +29,5 @@ export async function signOut() {
   } catch {
     // Error signing out - silently handle to avoid console warnings
   }
-  redirect('/signin');
+  redirect('/auth/signin');
 }

@@ -54,7 +54,9 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
     
     const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
     events.forEach(event => {
-      document.addEventListener(event, updateActivity, true);
+      if (typeof document !== 'undefined') {
+        document.addEventListener(event, updateActivity, true);
+      }
     });
 
     // Auto-reconnect on user activity if disconnected
@@ -70,7 +72,9 @@ export function RealtimeProvider({ children }: { children: React.ReactNode }) {
       clearInterval(interval);
       clearInterval(activityInterval);
       events.forEach(event => {
-        document.removeEventListener(event, updateActivity, true);
+        if (typeof document !== 'undefined') {
+          document.removeEventListener(event, updateActivity, true);
+        }
       });
     };
   }, [user, isConnected, lastActivity]);
