@@ -86,7 +86,7 @@ export function Sidebar() {
             {!sidebarCollapsed && (
               <Link href="/dashboard" className="flex items-center gap-2">
                 <Logo size="sm" />
-                <span className="text-xl font-bold">All Buzz Cleaning</span>
+                <span className="text-xl font-bold">Crux</span>
               </Link>
             )}
             <Button
