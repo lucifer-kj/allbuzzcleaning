@@ -23,7 +23,7 @@ export function Header() {
   const handleSignOut = async () => {
     if (supabase) {
       await supabase.auth.signOut();
-      window.location.href = '/auth/signin';
+      window.location.href = '/signin';
     }
   };
 

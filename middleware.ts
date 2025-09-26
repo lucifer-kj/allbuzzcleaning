@@ -44,18 +44,18 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Public routes that don't require authentication
-  const publicRoutes = ['/', '/review', '/feedback', '/auth/signin'];
+  const publicRoutes = ['/', '/review', '/feedback', '/signin'];
   const isPublicRoute = publicRoutes.some((route) => 
     pathname === route || pathname.startsWith(route + '/')
   );
 
   // Redirect to signin if accessing protected routes without auth
   if (!user && !isPublicRoute) {
-    return NextResponse.redirect(new URL('/auth/signin', request.url));
+    return NextResponse.redirect(new URL('/signin', request.url));
   }
 
   // Redirect to dashboard if accessing signin while logged in
-  if (user && pathname === '/auth/signin') {
+  if (user && pathname === '/signin') {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

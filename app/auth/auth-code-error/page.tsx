@@ -25,7 +25,7 @@ export default function AuthCodeErrorPage() {
           
           <div className="space-y-2">
             <Button asChild className="w-full">
-              <Link href="/auth/signin">
+              <Link href="/signin">
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Sign In
               </Link>
